@@ -1,0 +1,117 @@
+﻿# Java 输入源规则
+# 检测从 HTTP 请求中获取用户输入的操作
+rules:
+  - id: "JAVA-IN-001"
+    name: "HttpServletRequest.getParameter"
+    severity: "info"
+    description: "直接从 HttpServletRequest 获取请求参数"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'request\.getParameter\s*\('
+        - regex: '\.getParameter\s*\('
+    context: "input-source"
+
+  - id: "JAVA-IN-002"
+    name: "@RequestParam 注解参数"
+    severity: "info"
+    description: "Spring MVC 中通过 @RequestParam 接收用户输入"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@RequestParam'
+    context: "input-source"
+
+  - id: "JAVA-IN-003"
+    name: "@PathVariable 注解参数"
+    severity: "info"
+    description: "Spring MVC 中通过 @PathVariable 接收 URL 路径参数"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@PathVariable'
+    context: "input-source"
+
+  - id: "JAVA-IN-004"
+    name: "@RequestBody 注解参数"
+    severity: "info"
+    description: "Spring MVC 中通过 @RequestBody 接收请求体"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@RequestBody'
+    context: "input-source"
+
+  - id: "JAVA-IN-005"
+    name: "HttpServletRequest.getHeader"
+    severity: "info"
+    description: "从请求头获取用户输入"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.getHeader\s*\('
+        - regex: '\.getHeaders\s*\('
+    context: "input-source"
+
+  - id: "JAVA-IN-006"
+    name: "HttpServletRequest.getQueryString"
+    severity: "info"
+    description: "获取原始查询字符串"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.getQueryString\s*\('
+    context: "input-source"
+
+  - id: "JAVA-IN-007"
+    name: "HttpServletRequest.getCookies"
+    severity: "info"
+    description: "获取 Cookie 值"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.getCookies\s*\('
+        - regex: '\.getValue\s*\('
+    context: "input-source"
+
+  - id: "JAVA-IN-008"
+    name: "MultipartFile 上传内容"
+    severity: "info"
+    description: "文件上传内容可能包含恶意数据"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'MultipartFile'
+        - regex: '\.getOriginalFilename\s*\('
+        - regex: '\.getInputStream\s*\('
+    context: "input-source"
+
+  - id: "JAVA-IN-009"
+    name: "ServletRequest.getParameterValues"
+    severity: "info"
+    description: "获取同名的多个请求参数值"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.getParameterValues\s*\('
+    context: "input-source"
+
+  - id: "JAVA-IN-010"
+    name: "ServletRequest.getParameterMap"
+    severity: "info"
+    description: "获取所有请求参数的 Map"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.getParameterMap\s*\('
+    context: "input-source"

@@ -1,0 +1,130 @@
+﻿# Java 危险输出点规则（Reflected XSS）
+# 检测未转义的用户输入被输出到 HTML/JS 上下文中
+rules:
+  - id: "JAVA-OUT-001"
+    name: "JSP 表达式输出 <%= %>"
+    severity: "high"
+    description: "JSP 中使用 <%= %> 直接输出未转义内容"
+    language: "java"
+    file_patterns: ["*.jsp"]
+    detect:
+      patterns:
+        - regex: '<%=\s*.*?%>'
+    context: "html-output"
+    fix: "使用 <c:out value=\"...\" escapeXml=\"true\"/> 或 ${fn:escapeXml(...)}"
+
+  - id: "JAVA-OUT-002"
+    name: "JSP EL 表达式未转义输出 $ {}"
+    severity: "high"
+    description: "JSP EL 表达式直接输出，默认不转义（JSP 2.0+ 默认转义，但依赖配置）"
+    language: "java"
+    file_patterns: ["*.jsp"]
+    detect:
+      patterns:
+        - regex: '\$\{.*?\}'
+    context: "html-output"
+    fix: "确认 web.xml 中 <el-ignored> 已启用转义，或使用 fn:escapeXml()"
+
+  - id: "JAVA-OUT-003"
+    name: "JSP out.print() / out.write()"
+    severity: "high"
+    description: "JSP Scriptlet 中通过 out.print() 直接输出"
+    language: "java"
+    file_patterns: ["*.jsp"]
+    detect:
+      patterns:
+        - regex: 'out\.print\s*\('
+        - regex: 'out\.write\s*\('
+        - regex: 'out\.println\s*\('
+    context: "html-output"
+    fix: "使用 <c:out value=\"...\"/> 或先经过 HtmlUtils.htmlEscape() 再输出"
+
+  - id: "JAVA-OUT-004"
+    name: "JSP 表单回显未转义"
+    severity: "high"
+    description: "表单 value 属性直接使用 EL 表达式，可能导致属性注入"
+    language: "java"
+    file_patterns: ["*.jsp"]
+    detect:
+      patterns:
+        - regex: 'value\s*=\s*"\$\{'
+        - regex: 'value\s*=\s*"<%=\s*'
+    context: "html-output"
+    fix: "使用 <c:out value=\"...\"/> 或 fn:escapeXml() 包裹 value"
+
+  - id: "JAVA-OUT-005"
+    name: "Thymeleaf th:utext 未转义"
+    severity: "high"
+    description: "th:utext 输出未转义的 HTML，与 th:text 不同"
+    language: "java"
+    file_patterns: ["*.html"]
+    detect:
+      patterns:
+        - regex: 'th:utext\s*='
+    context: "html-output"
+    fix: "使用 th:text 代替 th:utext，或确保数据经过 HTML 编码"
+
+  - id: "JAVA-OUT-006"
+    name: "Spring @ResponseBody 返回 HTML 片段"
+    severity: "high"
+    description: "REST 控制器直接返回包含用户输入的 HTML 字符串"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@ResponseBody'
+    context: "html-output"
+    fix: "返回结构化数据（JSON），在前端负责安全渲染；如必须返回 HTML，使用 HtmlUtils.htmlEscape()"
+
+  - id: "JAVA-OUT-007"
+    name: "model.addAttribute 传递未转义数据"
+    severity: "medium"
+    description: "将未经转义的用户输入传递给视图层，视图层可能直接展示"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'model\.addAttribute\s*\('
+        - regex: 'ModelAndView\.addObject\s*\('
+    context: "data-flow"
+    fix: "在 addAttribute 前使用 HtmlUtils.htmlEscape() 或 ESAPI 编码"
+
+  - id: "JAVA-OUT-008"
+    name: "response.getWriter().write()"
+    severity: "high"
+    description: "通过 response 输出流直接写入未转义的用户输入"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'response\.getWriter\(\)'
+        - regex: '\.getWriter\(\)\.write\s*\('
+        - regex: '\.getWriter\(\)\.print\s*\('
+    context: "html-output"
+    fix: "使用 ESAPI.encoder().encodeForHTML() 编码后再输出"
+
+  - id: "JAVA-OUT-009"
+    name: "字符串拼接构建 HTML"
+    severity: "high"
+    description: "用户输入通过字符串拼接方式嵌入 HTML"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\+\s*".*?<.*?>.*?"\s*\+'
+    context: "html-output"
+    fix: "使用 StringBuilder 构建时对用户输入进行编码，或使用模板引擎"
+
+  - id: "JAVA-OUT-010"
+    name: "Redirect 参数拼接"
+    severity: "medium"
+    description: "用户输入直接拼入重定向 URL，可能导致反射型 XSS 或开放重定向"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'redirect:.*?\+'
+        - regex: 'sendRedirect\s*\('
+        - regex: 'RedirectView\s*\('
+    context: "url-output"
+    fix: "使用 UriComponentsBuilder 构建 URL 并 encode，或使用 Spring's RedirectAttributes"

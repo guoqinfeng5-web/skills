@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>用户管理 - 旧版系统</title>
+</head>
+<body>
+  <h1>用户列表</h1>
+  <ul id="user-list"></ul>
+
+  <script>
+    // 手动 JSONP 请求 — callback 参数由当前页面 URL 控制
+    var params = new URLSearchParams(window.location.search);
+    var cbName = params.get("cb") || "handleUsers";
+
+    // 定义全局回调函数
+    window[cbName] = function (data) {
+      var list = document.getElementById("user-list");
+      data.forEach(function (user) {
+        var li = document.createElement("li");
+        li.textContent = user.name + " (" + user.email + ")";
+        list.appendChild(li);
+      });
+    };
+
+    // 构造 script 标签发起 JSONP 请求
+    var script = document.createElement("script");
+    script.src = "/api/jsonp.jsp?callback=" + cbName;
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>

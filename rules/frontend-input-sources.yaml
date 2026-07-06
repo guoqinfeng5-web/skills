@@ -1,0 +1,193 @@
+﻿# 前端输入源规则
+# 检测从浏览器 URL/用户事件等获取输入的操作
+rules:
+  - id: "FE-IN-001"
+    name: "window.location 读取"
+    severity: "info"
+    description: "从浏览器 URL 中获取参数或路径"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'location\.search'
+        - regex: 'location\.hash'
+        - regex: 'location\.href'
+        - regex: 'location\.pathname'
+        - regex: 'document\.URL'
+        - regex: 'document\.documentURI'
+        - regex: 'window\.location'
+    context: "input-source"
+
+  - id: "FE-IN-002"
+    name: "URLSearchParams 读取"
+    severity: "info"
+    description: "通过 URLSearchParams API 获取 URL 参数"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'URLSearchParams'
+        - regex: '\.get\s*\([^)]*par'
+        - regex: '\.get\s*\([^)]*q'
+        - regex: '\.get\s*\([^)]*search'
+        - regex: '\.getAll\s*\('
+    context: "input-source"
+
+  - id: "FE-IN-003"
+    name: "React Router 路由参数"
+    severity: "info"
+    description: "从 React Router 的 useParams/useSearchParams 获取输入"
+    language: "javascript"
+    file_patterns: ["*.jsx", "*.tsx"]
+    detect:
+      patterns:
+        - regex: 'useParams\s*\('
+        - regex: 'useSearchParams\s*\('
+        - regex: 'useLocation\s*\('
+        - regex: 'this\.props\.match\.params'
+        - regex: 'props\.location\.search'
+        - regex: 'props\.location\.query'
+    context: "input-source"
+
+  - id: "FE-IN-004"
+    name: "Vue Router 路由参数"
+    severity: "info"
+    description: "从 Vue Router 的 route.query / route.params 获取输入"
+    language: "javascript"
+    file_patterns: ["*.vue", "*.js", "*.ts"]
+    detect:
+      patterns:
+        - regex: 'route\.query'
+        - regex: 'route\.params'
+        - regex: 'this\.\$route\.query'
+        - regex: 'this\.\$route\.params'
+        - regex: 'router\.currentRoute'
+        - regex: 'useRoute\s*\('
+        - regex: 'useRouter\s*\('
+    context: "input-source"
+
+  - id: "FE-IN-005"
+    name: "postMessage 接收数据"
+    severity: "info"
+    description: "通过 window.postMessage 接收来自其他窗口的输入"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'addEventListener\s*\(\s*["'']message["'']'
+        - regex: 'onmessage\s*='
+        - regex: '\.onmessage\s*=\s*function'
+    context: "input-source"
+
+  - id: "FE-IN-006"
+    name: "window.name / opener"
+    severity: "info"
+    description: "通过 window.name 或 opener 获取跨窗口数据"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'window\.name'
+        - regex: '\.opener\.'
+    context: "input-source"
+
+  - id: "FE-IN-007"
+    name: "document.referrer"
+    severity: "info"
+    description: "从 HTTP Referer 头获取来源页 URL"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'document\.referrer'
+    context: "input-source"
+
+  - id: "FE-IN-008"
+    name: "输入框/表单直接读取"
+    severity: "info"
+    description: "从表单输入框直接读取用户输入"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '\.value\s*$'
+        - regex: 'form\.elements'
+        - regex: 'document\.getElementById.*\.value'
+        - regex: '\.querySelector.*\.value'
+    context: "input-source"
+  - id: "FE-IN-009"
+    name: "fetch/XMLHttpRequest 响应"
+    severity: "info"
+    description: "从 fetch() 或 XMLHttpRequest 的响应中获取数据（response-based DOM XSS）"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '\.json\s*\(\s*\)'
+        - regex: '\.text\s*\(\s*\)'
+        - regex: 'responseText'
+        - regex: 'response\.data'
+        - regex: 'xhr\.response'
+        - regex: 'fetch\s*\('
+        - regex: 'XMLHttpRequest'
+    context: "input-source"
+
+  - id: "FE-IN-010"
+    name: "WebSocket 消息接收"
+    severity: "info"
+    description: "通过 WebSocket 接收服务器或对方推送的数据"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'WebSocket\s*\('
+        - regex: 'socket\.onmessage'
+        - regex: '\.onmessage\s*='
+        - regex: 'addEventListener.*message.*socket'
+        - regex: 'new WebSocket'
+    context: "input-source"
+
+  - id: "FE-IN-011"
+    name: "History API 状态"
+    severity: "info"
+    description: "从 history.state/pushState/replaceState 获取数据"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'history\.state'
+        - regex: 'pushState\s*\('
+        - regex: 'replaceState\s*\('
+        - regex: 'popstate'
+    context: "input-source"
+
+  - id: "FE-IN-012"
+    name: "ServiceWorker / SharedWorker 消息"
+    severity: "info"
+    description: "从 ServiceWorker 或 SharedWorker 的消息中获取数据"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts"]
+    detect:
+      patterns:
+        - regex: 'navigator\.serviceWorker'
+        - regex: 'SharedWorker\s*\('
+        - regex: 'worker\.postMessage'
+        - regex: 'worker\.onmessage'
+        - regex: 'addEventListener.*message'
+    context: "input-source"
+
+  - id: "FE-IN-013"
+    name: "Hash 路由参数解码"
+    severity: "info"
+    description: "从 hash 路由中解码参数（SPA 常见模式）"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'location\.hash'
+        - regex: 'hashchange'
+        - regex: 'decodeURIComponent.*hash'
+        - regex: 'atob.*hash'
+        - regex: 'split.*["'\'']#["'\'']'
+    context: "input-source"
+

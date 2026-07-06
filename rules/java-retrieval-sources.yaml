@@ -1,0 +1,168 @@
+﻿# Java 数据检索 API 规则
+# 检测从数据库/文件/缓存读取数据的操作
+rules:
+  - id: "STO-JAVA-OUT-001"
+    name: "JpaRepository 查询方法"
+    severity: "info"
+    description: "Spring Data JPA 从数据库查询数据"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.findAll\s*\('
+        - regex: '\.findById\s*\('
+        - regex: '\.findBy\w+\s*\('
+        - regex: '\.getOne\s*\('
+        - regex: '\.getById\s*\('
+        - regex: '\.findAllById\s*\('
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-002"
+    name: "EntityManager 查询"
+    severity: "info"
+    description: "JPA EntityManager 执行查询"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'entityManager\.find\s*\('
+        - regex: 'entityManager\.createQuery\s*\('
+        - regex: 'entityManager\.createNamedQuery\s*\('
+        - regex: 'entityManager\.createNativeQuery\s*\('
+        - regex: 'em\.find\s*\('
+        - regex: 'em\.createQuery\s*\('
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-003"
+    name: "MyBatis select 操作"
+    severity: "info"
+    description: "MyBatis Mapper 执行查询操作"
+    language: "java"
+    file_patterns: ["*.java", "*.xml"]
+    detect:
+      patterns:
+        - regex: 'sqlSession\.selectList\s*\('
+        - regex: 'sqlSession\.selectOne\s*\('
+        - regex: 'sqlSession\.selectMap\s*\('
+        - regex: '@Select'
+        - regex: '@SelectKey'
+        - regex: '<select\b'
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-004"
+    name: "JDBC executeQuery"
+    severity: "info"
+    description: "JDBC 直接执行查询语句"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.executeQuery\s*\('
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-005"
+    name: "ResultSet 获取数据"
+    severity: "info"
+    description: "从 JDBC ResultSet 获取查询结果"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'resultSet\.getString\s*\('
+        - regex: 'ResultSet\.getString\s*\('
+        - regex: 'resultSet\.getObject\s*\('
+        - regex: 'rs\.getString\s*\('
+        - regex: 'rs\.getObject\s*\('
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-006"
+    name: "Spring JdbcTemplate query"
+    severity: "info"
+    description: "Spring JdbcTemplate 查询操作"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'jdbcTemplate\.query\s*\('
+        - regex: 'jdbcTemplate\.queryForList\s*\('
+        - regex: 'jdbcTemplate\.queryForObject\s*\('
+        - regex: 'jdbcTemplate\.queryForMap\s*\('
+        - regex: 'namedParameterJdbcTemplate\.query\s*\('
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-007"
+    name: "Redis 缓存读取"
+    severity: "info"
+    description: "Redis 缓存读取操作"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'redisTemplate\.opsForValue\(\)\.get\s*\('
+        - regex: 'redisTemplate\.opsForList\(\)\.range\s*\('
+        - regex: 'redisTemplate\.opsForSet\(\)\.members\s*\('
+        - regex: 'stringRedisTemplate\.opsForValue\(\)\.get\s*\('
+        - regex: '\.get\(.*,\s*.*\)'
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-008"
+    name: "Spring Cache 读取"
+    severity: "info"
+    description: "Spring Cache 注解触发缓存读取"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@Cacheable'
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-009"
+    name: "文件读取（字符流）"
+    severity: "info"
+    description: "通过字符流读取文件内容"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'BufferedReader\.readLine\s*\('
+        - regex: 'FileReader\.read\s*\('
+        - regex: 'InputStreamReader\.read\s*\('
+        - regex: 'Files\.readAllLines\s*\('
+        - regex: 'Files\.readString\s*\('
+        - regex: 'Scanner\.nextLine\s*\('
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-010"
+    name: "文件读取（字节流）"
+    severity: "info"
+    description: "通过字节流读取文件内容"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'FileInputStream\.read\s*\('
+        - regex: 'BufferedInputStream\.read\s*\('
+        - regex: 'Files\.readAllBytes\s*\('
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-011"
+    name: "JPA @PostLoad 回调"
+    severity: "info"
+    description: "JPA 实体加载后回调，此处处理的数据来自数据库"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@PostLoad'
+    context: "retrieval-source"
+
+  - id: "STO-JAVA-OUT-012"
+    name: "Entity getter 方法"
+    severity: "info"
+    description: "从 JPA 实体 getter 获取字段值（数据来自数据库）"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.get\w+\(\s*\)'
+    context: "retrieval-source"

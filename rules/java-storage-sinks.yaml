@@ -1,0 +1,141 @@
+﻿# Java 持久化存储 API 规则
+# 检测将用户输入持久化到数据库/文件/缓存的操作
+rules:
+  - id: "STO-JAVA-IN-001"
+    name: "JpaRepository.save()"
+    severity: "info"
+    description: "Spring Data JPA 保存实体到数据库"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.save\s*\('
+        - regex: '\.saveAll\s*\('
+        - regex: '\.saveAndFlush\s*\('
+    context: "storage-sink"
+
+  - id: "STO-JAVA-IN-002"
+    name: "EntityManager.persist/merge"
+    severity: "info"
+    description: "JPA EntityManager 持久化或合并实体"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'entityManager\.persist\s*\('
+        - regex: 'entityManager\.merge\s*\('
+        - regex: 'em\.persist\s*\('
+        - regex: 'em\.merge\s*\('
+    context: "storage-sink"
+
+  - id: "STO-JAVA-IN-003"
+    name: "MyBatis insert/update"
+    severity: "info"
+    description: "MyBatis Mapper 执行插入或更新操作"
+    language: "java"
+    file_patterns: ["*.java", "*.xml"]
+    detect:
+      patterns:
+        - regex: 'sqlSession\.insert\s*\('
+        - regex: 'sqlSession\.update\s*\('
+        - regex: '@Insert'
+        - regex: '@Update'
+        - regex: '<insert\b'
+        - regex: '<update\b'
+    context: "storage-sink"
+
+  - id: "STO-JAVA-IN-004"
+    name: "JDBC executeUpdate"
+    severity: "info"
+    description: "JDBC 直接执行更新语句"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.executeUpdate\s*\('
+        - regex: '\.execute\s*\('
+    context: "storage-sink"
+
+  - id: "STO-JAVA-IN-005"
+    name: "Spring JdbcTemplate update"
+    severity: "info"
+    description: "Spring JdbcTemplate 执行更新操作"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'jdbcTemplate\.update\s*\('
+        - regex: 'jdbcTemplate\.batchUpdate\s*\('
+        - regex: 'namedParameterJdbcTemplate\.update\s*\('
+    context: "storage-sink"
+
+  - id: "STO-JAVA-IN-006"
+    name: "Redis 缓存写入"
+    severity: "info"
+    description: "Redis 缓存写入操作"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'redisTemplate\.opsForValue\(\)\.set\s*\('
+        - regex: 'redisTemplate\.opsForList\(\)\.leftPush\s*\('
+        - regex: 'redisTemplate\.opsForSet\(\)\.add\s*\('
+        - regex: '\.set\(.*,\s*.*\)'
+        - regex: 'stringRedisTemplate\.opsForValue\(\)\.set\s*\('
+    context: "storage-sink"
+
+  - id: "STO-JAVA-IN-007"
+    name: "Spring Cache 注解"
+    severity: "info"
+    description: "Spring Cache 注解触发缓存存储"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@CachePut'
+        - regex: '@CacheEvict'
+        - regex: '@Caching'
+    context: "storage-sink"
+
+  - id: "STO-JAVA-IN-008"
+    name: "文件写入（字符流）"
+    severity: "info"
+    description: "通过字符流写入文件"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'BufferedWriter\.write\s*\('
+        - regex: 'FileWriter\.write\s*\('
+        - regex: 'PrintWriter\.write\s*\('
+        - regex: 'PrintWriter\.println\s*\('
+        - regex: 'OutputStreamWriter\.write\s*\('
+        - regex: 'Files\.write\s*\('
+        - regex: 'Files\.writeString\s*\('
+    context: "storage-sink"
+
+  - id: "STO-JAVA-IN-009"
+    name: "文件写入（字节流）"
+    severity: "info"
+    description: "通过字节流写入文件"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'FileOutputStream\.write\s*\('
+        - regex: 'BufferedOutputStream\.write\s*\('
+        - regex: 'transferTo\s*\('
+        - regex: '\.store\s*\('
+    context: "storage-sink"
+
+  - id: "STO-JAVA-IN-010"
+    name: "JPA @PrePersist / @PreUpdate"
+    severity: "info"
+    description: "JPA 实体持久化前/更新前回调，此处处理的数据会被存储"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@PrePersist'
+        - regex: '@PreUpdate'
+    context: "storage-sink"

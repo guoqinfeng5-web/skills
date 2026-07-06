@@ -1,0 +1,65 @@
+﻿# 前端浏览器端检索/读取 API 规则
+rules:
+  - id: "STO-FE-OUT-001"
+    name: "localStorage.getItem"
+    severity: "info"
+    description: "浏览器 localStorage 读取数据"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts", "*.html"]
+    detect:
+      patterns:
+        - regex: 'localStorage\.getItem\s*\('
+        - regex: 'localStorage\['
+        - regex: 'localStorage\.\w+'
+    context: "retrieval-source"
+
+  - id: "STO-FE-OUT-002"
+    name: "sessionStorage.getItem"
+    severity: "info"
+    description: "浏览器 sessionStorage 读取数据"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts", "*.html"]
+    detect:
+      patterns:
+        - regex: 'sessionStorage\.getItem\s*\('
+        - regex: 'sessionStorage\['
+        - regex: 'sessionStorage\.\w+'
+    context: "retrieval-source"
+
+  - id: "STO-FE-OUT-003"
+    name: "Cookie 读取"
+    severity: "info"
+    description: "从 document.cookie 读取 Cookie"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts", "*.html"]
+    detect:
+      patterns:
+        - regex: 'document\.cookie'
+    context: "retrieval-source"
+
+  - id: "STO-FE-OUT-004"
+    name: "IndexedDB 读取"
+    severity: "info"
+    description: "IndexedDB 读取数据"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts"]
+    detect:
+      patterns:
+        - regex: '\.get\s*\('
+        - regex: '\.getAll\s*\('
+        - regex: '\.openCursor\s*\('
+        - regex: 'objectStore\.get'
+        - regex: 'index\.get'
+    context: "retrieval-source"
+
+  - id: "STO-FE-OUT-005"
+    name: "Cache API 读取"
+    severity: "info"
+    description: "Cache Storage API 读取缓存"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts"]
+    detect:
+      patterns:
+        - regex: 'cache\.match\s*\('
+        - regex: 'cache\.matchAll\s*\('
+    context: "retrieval-source"

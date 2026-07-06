@@ -1,0 +1,163 @@
+﻿# 误报排查规则
+# 当数据流满足以下任一条件时，中断追踪并判定为 无漏洞/False Positive
+rules:
+  - id: "FP-TYPE-001"
+    name: "原始数据类型（非字符串）"
+    severity: "false-positive"
+    description: "Integer/Long/Boolean/Double/Date 等原始类型或包装类参数，无法注入 HTML/JS 代码"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '(int|long|boolean|double|float|short|byte|Integer|Long|Boolean|Double|Float|Short|Byte)\s+\w+'
+    context: "interrupt"
+    reason: "非字符串类型无法包含 HTML/JS 特殊字符"
+
+  - id: "FP-TYPE-002"
+    name: "枚举类型参数"
+    severity: "false-positive"
+    description: "枚举类型的值受限于预定义的枚举常量列表，用户无法传入自定义值"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@RequestParam.*Enum'
+        - regex: '@PathVariable.*Enum'
+        - regex: 'Enum<'
+    context: "interrupt"
+    reason: "枚举值在白名单范围内，用户不可注入任意值"
+
+  - id: "FP-SOURCE-001"
+    name: "硬编码字符串常量"
+    severity: "false-positive"
+    description: "代码中硬编码的字符串字面量，不来自用户输入"
+    language: "all"
+    file_patterns: ["*.java", "*.js", "*.ts", "*.jsx", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '".*?"'
+        - regex: "'[^']*'"
+    context: "interrupt"
+    reason: "字符串常量不受用户控制"
+
+  - id: "FP-SOURCE-002"
+    name: "系统配置属性（@Value）"
+    severity: "false-positive"
+    description: "通过 @Value 注入的 application.properties/yml 配置项"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '@Value\s*\(\s*"\$\{'
+        - regex: '@Value\s*\(\s*"#'
+    context: "interrupt"
+    reason: "配置文件中的值由开发/运维控制，非用户输入"
+
+  - id: "FP-SOURCE-003"
+    name: "UUID / 随机 ID 生成器"
+    severity: "false-positive"
+    description: "系统自动生成的 UUID 或随机标识符，不含用户输入成分"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'UUID\.randomUUID\s*\('
+        - regex: 'UUID\.fromString\s*\('
+        - regex: 'IdUtils'
+        - regex: 'RandomStringUtils'
+    context: "interrupt"
+    reason: "系统生成的随机值，非用户可控"
+
+  - id: "FP-FLOW-001"
+    name: "数据仅用于后端处理（不展示）"
+    severity: "false-positive"
+    description: "用户输入仅用于数据库查询条件、排序、计算等后端逻辑，不进入 View 层或输出流"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: '\.set\w+\(\w+\)'
+    context: "interrupt"
+    reason: "数据流向仅为后端业务处理，未到达输出点"
+
+  - id: "FP-FLOW-002"
+    name: "已通过 Jsoup.clean 消毒"
+    severity: "false-positive"
+    description: "数据经过 Jsoup.clean() 白名单 HTML 净化"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'Jsoup\.clean\s*\('
+        - regex: 'Jsoup\.isValid\s*\('
+    context: "interrupt"
+    reason: "Jsoup.clean 已通过白名单过滤 XSS"
+
+  - id: "FP-FLOW-003"
+    name: "已通过 DOMPurify 消毒"
+    severity: "false-positive"
+    description: "前端数据经过 DOMPurify.sanitize() 消毒后才输出到 DOM"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'DOMPurify\.sanitize\s*\('
+        - regex: 'DOMPurify\.isRequired\s*\('
+    context: "interrupt"
+    reason: "DOMPurify 已通过白名单过滤 XSS"
+
+  - id: "FP-FLOW-004"
+    name: "数据通过自定义过滤器/XSSFilter"
+    severity: "false-positive"
+    description: "自定义 XSS 过滤器或 HttpServletRequestWrapper 已全局过滤"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'XssFilter'
+        - regex: 'XSSFilter'
+        - regex: 'XssRequestWrapper'
+        - regex: 'EscapeFilter'
+        - regex: 'CrossSiteScripting'
+    context: "interrupt"
+    reason: "自定义过滤器已做全局 XSS 过滤"
+
+  - id: "FP-OUTPUT-001"
+    name: "Content-Type 为 application/json"
+    severity: "false-positive"
+    description: "返回 Content-Type 为 application/json，浏览器不会将响应解析为 HTML"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'MediaType\.APPLICATION_JSON'
+        - regex: 'application/json'
+        - regex: 'produces\s*=\s*".*?json.*?"'
+        - regex: '@RestController'
+    context: "interrupt"
+    reason: "JSON Content-Type 不会被浏览器解析为 HTML（除非 MIME 嗅探启用）"
+
+  - id: "FP-OUTPUT-002"
+    name: "框架自动转义（React {} / Vue {{ }}）"
+    severity: "false-positive"
+    description: "React 的 {} 插值和 Vue 的 {{ }} 插值默认进行 HTML 转义"
+    language: "javascript"
+    file_patterns: ["*.jsx", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '\{.*?\}'
+        - regex: '\{\{.*?\}\}'
+    context: "interrupt"
+    reason: "框架默认转义，除非使用 dangerouslySetInnerHTML 或 v-html"
+
+  - id: "FP-OUTPUT-003"
+    name: "使用 .text() 替代 .html()"
+    severity: "false-positive"
+    description: "jQuery 的 .text() 方法自动进行 HTML 转义"
+    language: "javascript"
+    file_patterns: ["*.js", "*.html"]
+    detect:
+      patterns:
+        - regex: '\.text\s*\('
+    context: "interrupt"
+    reason: ".text() 自动对 HTML 特殊字符进行编码"

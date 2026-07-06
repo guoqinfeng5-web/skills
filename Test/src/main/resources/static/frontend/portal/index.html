@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>前后端分离门户 - 联动场景</title>
+    <link rel="stylesheet" href="/css/common.css"/>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<div class="container wide">
+    <h1>前后端分离门户 <span class="tag">跨 API 联动</span></h1>
+    <p class="subtitle">
+        单页串联: URL 参数 → Portal API → Feedback API → Log API → DOM 渲染
+    </p>
+
+    <section class="portal-panel">
+        <h2>1. 搜索（F01 + scenario01 + scenario07）</h2>
+        <input type="text" id="searchInput" placeholder="输入搜索词"/>
+        <button id="searchBtn">搜索</button>
+        <div id="searchPanel"></div>
+    </section>
+
+    <section class="portal-panel">
+        <h2>2. 反馈（F05 + scenario03）</h2>
+        <textarea id="feedbackContent" rows="3" placeholder="反馈内容"></textarea>
+        <button id="feedbackBtn">提交</button>
+        <div id="feedbackPanel"></div>
+    </section>
+
+    <section class="portal-panel">
+        <h2>3. 最近日志（scenario07 AJAX）</h2>
+        <button id="refreshLogsBtn">刷新日志</button>
+        <div id="logsPanel"></div>
+    </section>
+
+    <section class="portal-panel">
+        <h2>4. URL 问候（F06 jQuery 模式）</h2>
+        <div id="userGreeting"></div>
+    </section>
+</div>
+<script src="/frontend/portal/portal-app.js"></script>
+</body>
+</html>

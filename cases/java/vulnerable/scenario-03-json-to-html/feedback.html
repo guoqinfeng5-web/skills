@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>意见反馈 - 在线服务平台</title>
+    <link rel="stylesheet" href="/css/feedback.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+</head>
+<body>
+<div class="feedback-page">
+    <h1>意见反馈</h1>
+    <p class="page-desc">感谢您的反馈，我们将不断改进服务</p>
+
+    <!-- 反馈提交表单 -->
+    <div class="feedback-form">
+        <div class="form-group">
+            <label for="username">您的昵称:</label>
+            <input type="text" id="username" name="username" 
+                   placeholder="请输入您的昵称" class="form-control"/>
+        </div>
+        <div class="form-group">
+            <label for="content">反馈内容:</label>
+            <textarea id="content" name="content" rows="5"
+                      placeholder="请详细描述您的意见或建议" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="contactInfo">联系方式:</label>
+            <input type="text" id="contactInfo" name="contactInfo" 
+                   placeholder="手机号或邮箱" class="form-control"/>
+        </div>
+        <button id="submitBtn" class="btn btn-primary">提交反馈</button>
+    </div>
+
+    <!-- 反馈列表展示区域 -->
+    <div class="feedback-section">
+        <h2>历史反馈</h2>
+        <div id="feedbackList" class="feedback-list">
+            <!-- 此处通过 innerHTML 动态加载后端返回的 HTML -->
+            <!-- 漏洞: 如果后端未转义，恶意脚本将在此执行 -->
+        </div>
+    </div>
+</div>
+
+<script src="/js/feedback.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+﻿# 前端浏览器端存储 API 规则
+rules:
+  - id: "STO-FE-IN-001"
+    name: "localStorage.setItem"
+    severity: "info"
+    description: "浏览器 localStorage 写入数据"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts", "*.html"]
+    detect:
+      patterns:
+        - regex: 'localStorage\.setItem\s*\('
+        - regex: 'localStorage\['
+        - regex: 'localStorage\.\w+\s*='
+    context: "storage-sink"
+
+  - id: "STO-FE-IN-002"
+    name: "sessionStorage.setItem"
+    severity: "info"
+    description: "浏览器 sessionStorage 写入数据（仅会话有效）"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts", "*.html"]
+    detect:
+      patterns:
+        - regex: 'sessionStorage\.setItem\s*\('
+        - regex: 'sessionStorage\['
+        - regex: 'sessionStorage\.\w+\s*='
+    context: "storage-sink"
+
+  - id: "STO-FE-IN-003"
+    name: "Cookie 写入"
+    severity: "info"
+    description: "浏览器 Cookie 写入"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts", "*.html"]
+    detect:
+      patterns:
+        - regex: 'document\.cookie\s*='
+    context: "storage-sink"
+
+  - id: "STO-FE-IN-004"
+    name: "IndexedDB 写入"
+    severity: "info"
+    description: "IndexedDB 写入数据"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts"]
+    detect:
+      patterns:
+        - regex: '\.put\s*\('
+        - regex: '\.add\s*\('
+        - regex: 'objectStore\.put'
+        - regex: 'objectStore\.add'
+    context: "storage-sink"
+
+  - id: "STO-FE-IN-005"
+    name: "Cache API 写入"
+    severity: "info"
+    description: "Cache Storage API 缓存写入"
+    language: "javascript"
+    file_patterns: ["*.js", "*.ts"]
+    detect:
+      patterns:
+        - regex: 'cache\.put\s*\('
+        - regex: 'caches\.open'
+    context: "storage-sink"

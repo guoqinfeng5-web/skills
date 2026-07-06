@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>安全 PostMessage 父页面</title>
+</head>
+<body>
+  <h1>安全的消息通信示例</h1>
+  <p>父页面仅向指定 origin 发送消息</p>
+
+  <iframe
+    id="child-frame"
+    src="child.html"
+    width="600"
+    height="300"
+    style="border:1px solid #ccc"
+  ></iframe>
+
+  <script>
+    const trustedOrigin = "https://trusted-parent.example.com";
+    const iframe = document.getElementById("child-frame");
+
+    // 仅在 iframe 加载完成后发送消息
+    iframe.addEventListener("load", function () {
+      // 只发送 JSON 格式的结构化数据
+      iframe.contentWindow.postMessage(
+        JSON.stringify({
+          type: "greeting",
+          name: "安全用户",
+        }),
+        trustedOrigin
+      );
+    });
+
+    // 接收子页面消息时验证 origin
+    window.addEventListener("message", function (event) {
+      if (event.origin !== "https://trusted-parent.example.com") {
+        console.warn("忽略来自非信任来源的消息:", event.origin);
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(event.data);
+      } catch (e) {
+        console.warn("非 JSON 消息已忽略");
+        return;
+      }
+
+      if (data && data.type === "ack") {
+        document.getElementById("status").textContent =
+          "子页面已确认收到消息";
+      }
+    });
+  </script>
+
+  <p id="status">等待子页面响应...</p>
+</body>
+</html>

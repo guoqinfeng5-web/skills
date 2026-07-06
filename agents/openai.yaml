@@ -1,0 +1,6 @@
+﻿interface:
+  display_name: "XSS 全面静态分析"
+  short_description: "反射型/存储型/DOM 型/其他 XSS 漏洞综合检测"
+  default_prompt: "使用 $xss 对项目进行跨站脚本漏洞全面分析，覆盖反射型、存储型、DOM 型及其他类型 XSS。"
+policy:
+  allow_implicit_invocation: true

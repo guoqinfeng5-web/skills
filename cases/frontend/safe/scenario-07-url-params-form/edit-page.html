@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>编辑页面 - 安全版</title>
+  <link rel="stylesheet" href="/styles/edit.css" />
+</head>
+<body>
+  <div id="app">
+    <h1>编辑内容</h1>
+    <div id="form-container">
+      <!-- Vue 组件挂载点 -->
+      <form-prefill @save="handleSave"></form-prefill>
+    </div>
+
+    <!-- URL 参数安全提示 -->
+    <div class="security-note">
+      <p>提示：URL 参数已自动转义，不会执行任何 HTML 或 JavaScript 代码。</p>
+    </div>
+  </div>
+
+  <script src="/js/vendor/vue.global.prod.js"></script>
+  <script src="/js/vendor/dompurify.min.js"></script>
+  <script src="/js/formBundle.js"></script>
+</body>
+</html>

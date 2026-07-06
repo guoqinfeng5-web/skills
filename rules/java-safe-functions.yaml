@@ -1,0 +1,100 @@
+﻿# Java 安全函数白名单
+# 这些函数/方法用于转义或编码用户输入，表示输入已安全处理
+rules:
+  - id: "JAVA-SAFE-001"
+    name: "Spring HtmlUtils.htmlEscape"
+    severity: "pass"
+    description: "使用 Spring 的 HtmlUtils 进行 HTML 编码"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'HtmlUtils\.htmlEscape\s*\('
+        - regex: 'HtmlUtils\.htmlEncode\s*\('
+    context: "safe-encoder"
+
+  - id: "JAVA-SAFE-002"
+    name: "OWASP ESAPI Encoder"
+    severity: "pass"
+    description: "使用 OWASP ESAPI 编码器进行上下文敏感编码"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'ESAPI\.encoder\(\)\.encodeForHTML\s*\('
+        - regex: 'ESAPI\.encoder\(\)\.encodeForJavaScript\s*\('
+        - regex: 'ESAPI\.encoder\(\)\.encodeForURL\s*\('
+        - regex: 'ESAPI\.encoder\(\)\.encodeForCSS\s*\('
+    context: "safe-encoder"
+
+  - id: "JAVA-SAFE-003"
+    name: "Apache Commons StringEscapeUtils"
+    severity: "pass"
+    description: "使用 Apache Commons Lang 的字符串转义工具"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'StringEscapeUtils\.escapeHtml\s*\('
+        - regex: 'StringEscapeUtils\.escapeEcmaScript\s*\('
+        - regex: 'StringEscapeUtils\.escapeXml\s*\('
+    context: "safe-encoder"
+
+  - id: "JAVA-SAFE-004"
+    name: "JSTL c:out 标签"
+    severity: "pass"
+    description: "JSTL 的 <c:out> 标签默认进行 XML 转义"
+    language: "java"
+    file_patterns: ["*.jsp"]
+    detect:
+      patterns:
+        - regex: '<c:out\s'
+    context: "safe-encoder"
+
+  - id: "JAVA-SAFE-005"
+    name: "JSTL fn:escapeXml 函数"
+    severity: "pass"
+    description: "JSTL 函数库中的 XML 转义函数"
+    language: "java"
+    file_patterns: ["*.jsp"]
+    detect:
+      patterns:
+        - regex: 'fn:escapeXml\s*\('
+    context: "safe-encoder"
+
+  - id: "JAVA-SAFE-006"
+    name: "Thymeleaf th:text"
+    severity: "pass"
+    description: "Thymeleaf 的 th:text 默认进行 HTML 转义输出"
+    language: "java"
+    file_patterns: ["*.html"]
+    detect:
+      patterns:
+        - regex: 'th:text\s*='
+    context: "safe-encoder"
+
+  - id: "JAVA-SAFE-007"
+    name: "Google Guava HtmlEscaping"
+    severity: "pass"
+    description: "使用 Guava 的 HtmlEscapers 进行 HTML 编码"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'HtmlEscapers\.htmlEscaper\(\)'
+    context: "safe-encoder"
+
+  - id: "JAVA-SAFE-008"
+    name: "自定义请求包装器 XSS 过滤"
+    severity: "pass"
+    description: "通过自定义 HttpServletRequestWrapper 进行全局 XSS 过滤"
+    language: "java"
+    file_patterns: ["*.java"]
+    detect:
+      patterns:
+        - regex: 'XssHttpServletRequestWrapper'
+        - regex: 'XssFilter'
+        - regex: 'XSSFilter'
+        - regex: 'XssRequestWrapper'
+        - regex: 'CrossSiteScriptingRequestWrapper'
+    context: "safe-encoder"

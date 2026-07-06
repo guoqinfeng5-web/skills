@@ -1,0 +1,97 @@
+﻿# 前端安全函数/操作白名单
+# 这些 API 或操作表示输入已安全处理
+rules:
+  - id: "FE-SAFE-001"
+    name: "DOMPurify 消毒"
+    severity: "pass"
+    description: "使用 DOMPurify 库对 HTML 进行消毒"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'DOMPurify\.sanitize\s*\('
+        - regex: 'purify\.sanitize\s*\('
+        - regex: 'dompurify'
+    context: "safe-encoder"
+
+  - id: "FE-SAFE-002"
+    name: "textContent 设置文本"
+    severity: "pass"
+    description: "使用 textContent 替代 innerHTML，自动转义 HTML"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '\.textContent\s*='
+    context: "safe-encoder"
+
+  - id: "FE-SAFE-003"
+    name: "Vue {{ }} 插值表达式"
+    severity: "pass"
+    description: "Vue 的 {{ }} 插值默认进行 HTML 转义"
+    language: "javascript"
+    file_patterns: ["*.vue"]
+    detect:
+      patterns:
+        - regex: '\{\{.*?\}\}'
+    context: "safe-encoder"
+
+  - id: "FE-SAFE-004"
+    name: "React JSX {} 表达式"
+    severity: "pass"
+    description: "React JSX 中的 {} 表达式默认转义 HTML"
+    language: "javascript"
+    file_patterns: ["*.jsx", "*.tsx"]
+    detect:
+      patterns:
+        - regex: 'render\(.*?\{.*?\}'
+    context: "safe-encoder"
+
+  - id: "FE-SAFE-005"
+    name: "encodeURI / encodeURIComponent"
+    severity: "pass"
+    description: "使用 encodeURI 或 encodeURIComponent 对 URL 进行编码"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'encodeURI\s*\('
+        - regex: 'encodeURIComponent\s*\('
+    context: "safe-encoder"
+
+  - id: "FE-SAFE-006"
+    name: "XSS 过滤工具函数"
+    severity: "pass"
+    description: "项目自定义的 XSS 过滤或 HTML 转义函数"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'xssFilter\s*\('
+        - regex: 'escapeHtml\s*\('
+        - regex: 'sanitizeHtml\s*\('
+        - regex: 'stripHtml\s*\('
+        - regex: 'encodeHtml\s*\('
+    context: "safe-encoder"
+
+  - id: "FE-SAFE-007"
+    name: ".text() 替代 .html()"
+    severity: "pass"
+    description: "jQuery 的 .text() 方法安全地设置文本内容"
+    language: "javascript"
+    file_patterns: ["*.js", "*.html"]
+    detect:
+      patterns:
+        - regex: '\.text\s*\('
+    context: "safe-encoder"
+
+  - id: "FE-SAFE-008"
+    name: "setAttribute 替代直接属性"
+    severity: "pass"
+    description: "使用 setAttribute 设置属性比直接拼接属性更安全"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '\.setAttribute\s*\('
+    context: "safe-encoder"

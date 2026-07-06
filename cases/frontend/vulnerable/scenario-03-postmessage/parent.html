@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>支付页面</title>
+</head>
+<body>
+  <h1>收银台</h1>
+  <iframe
+    id="payment-iframe"
+    src="child.html"
+    width="400"
+    height="300"
+  ></iframe>
+
+  <script>
+    const iframe = document.getElementById("payment-iframe");
+    iframe.onload = function () {
+      const params = new URLSearchParams(window.location.search);
+      iframe.contentWindow.postMessage(
+        {
+          type: "payment",
+          userName: params.get("user") || "未知用户",
+          amount: params.get("amount") || "0.00",
+        },
+        "*"
+      );
+    };
+  </script>
+</body>
+</html>

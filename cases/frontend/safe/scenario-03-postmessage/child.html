@@ -1,0 +1,17 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>安全 PostMessage 子页面</title>
+  <style>
+    #message-output { padding: 10px; background: #f5f5f5; min-height: 50px; }
+  </style>
+</head>
+<body>
+  <h2>子页面 (iframe)</h2>
+  <div id="message-output">等待父页面消息...</div>
+
+  <script src="messageHandler.js"></script>
+  <script src="iframeReceiver.js"></script>
+</body>
+</html>

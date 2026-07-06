@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>后台管理 - 仪表盘</title>
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+  <div id="header">
+    <h1>管理系统</h1>
+    <div id="user-greeting"></div>
+  </div>
+
+  <div id="sidebar">
+    <ul>
+      <li><a href="?page=dashboard">仪表盘</a></li>
+      <li><a href="?page=users">用户管理</a></li>
+      <li><a href="?page=settings">系统设置</a></li>
+    </ul>
+  </div>
+
+  <div id="content">
+    <div id="notification-bar"></div>
+    <div id="page-content"></div>
+  </div>
+
+  <div id="footer">
+    <div id="status-message"></div>
+  </div>
+
+  <script src="/js/vendor/jquery-1.12.4.min.js"></script>
+  <script src="/js/url-params.js"></script>
+  <script src="/js/old-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+﻿# 前端危险输出点规则（Reflected XSS）
+# 检测将用户输入直接插入 DOM 的不安全操作
+rules:
+  - id: "FE-OUT-001"
+    name: "innerHTML 直接赋值"
+    severity: "high"
+    description: "直接将字符串赋值给 innerHTML，不经过任何转义"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '\.innerHTML\s*='
+        - regex: '\.outerHTML\s*='
+    context: "dom-output"
+    fix: "使用 textContent 替代 innerHTML，或使用 DOMPurify.sanitize() 处理后再赋值"
+
+  - id: "FE-OUT-002"
+    name: "React dangerouslySetInnerHTML"
+    severity: "high"
+    description: "React 的 dangerouslySetInnerHTML 直接插入原始 HTML"
+    language: "javascript"
+    file_patterns: ["*.jsx", "*.tsx"]
+    detect:
+      patterns:
+        - regex: 'dangerouslySetInnerHTML'
+    context: "dom-output"
+    fix: "避免使用 dangerouslySetInnerHTML；如需渲染 HTML，使用 DOMPurify.sanitize() 处理"
+
+  - id: "FE-OUT-003"
+    name: "Vue v-html 指令"
+    severity: "high"
+    description: "Vue 的 v-html 直接插入原始 HTML"
+    language: "javascript"
+    file_patterns: ["*.vue"]
+    detect:
+      patterns:
+        - regex: 'v-html\s*='
+    context: "dom-output"
+    fix: "使用 v-text 或 {{ }} 插值语法替代 v-html；如需渲染 HTML，使用 DOMPurify 处理后输出"
+
+  - id: "FE-OUT-004"
+    name: "jQuery .html() .append()"
+    severity: "high"
+    description: "jQuery 的 html()/append()/prepend() 方法直接插入 HTML"
+    language: "javascript"
+    file_patterns: ["*.js", "*.html"]
+    detect:
+      patterns:
+        - regex: '\.html\s*\('
+        - regex: '\.append\s*\('
+        - regex: '\.prepend\s*\('
+        - regex: '\.after\s*\('
+        - regex: '\.before\s*\('
+    context: "dom-output"
+    fix: "使用 .text() 替代 .html()，或使用 DOMPurify.sanitize() 处理后再插入"
+
+  - id: "FE-OUT-005"
+    name: "document.write()"
+    severity: "high"
+    description: "document.write 直接向文档写入未转义内容"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'document\.write\s*\('
+        - regex: 'document\.writeln\s*\('
+    context: "dom-output"
+    fix: "使用 DOM API（createElement + textContent）替代 document.write"
+
+  - id: "FE-OUT-006"
+    name: "eval/setTimeout 传入字符串"
+    severity: "high"
+    description: "将用户输入传入 eval() 或 setTimeout/setInterval 字符串参数"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'eval\s*\('
+        - regex: 'setTimeout\s*\([^,)]*["'']'
+        - regex: 'setInterval\s*\([^,)]*["'']'
+        - regex: 'Function\s*\('
+    context: "js-execution"
+    fix: "避免使用 eval；setTimeout/setInterval 使用函数而非字符串参数"
+
+  - id: "FE-OUT-007"
+    name: "insertAdjacentHTML"
+    severity: "high"
+    description: "insertAdjacentHTML 直接解析 HTML 字符串并插入 DOM"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'insertAdjacentHTML\s*\('
+    context: "dom-output"
+    fix: "使用 insertAdjacentText 替代 insertAdjacentHTML"
+
+  - id: "FE-OUT-008"
+    name: "script 标签动态创建"
+    severity: "high"
+    description: "动态创建 script 标签并设置 src 或内容"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'createElement\s*\(\s*["'']script["'']\s*\)'
+        - regex: 'innerHTML.*<script'
+    context: "dom-output"
+    fix: "禁止将用户输入作为脚本内容执行；使用 CSP 头限制脚本来源"
+
+  - id: "FE-OUT-009"
+    name: "模板字符串拼接 HTML"
+    severity: "high"
+    description: "使用模板字符串（`...${...}...`）拼接 HTML 代码"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '`.*<.*?>.*\$\{'
+    context: "dom-output"
+    fix: "将使用模板字符串拼接的 HTML 改为 DOM API 构建，并通过 textContent 设置文本"
+
+  - id: "FE-OUT-010"
+    name: "location.hash 直接操作 DOM"
+    severity: "high"
+    description: "从 URL hash 中读取内容后直接更新到 DOM 中"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'location\.hash.*innerHTML'
+        - regex: 'location\.hash.*\.html\('
+        - regex: 'location\.hash.*v-html'
+    context: "dom-output"
+    fix: "对 hash 内容进行 HTML 编码后再插入 DOM，或使用 textContent"
+  - id: "FE-OUT-011"
+    name: "setAttribute 属性注入"
+    severity: "high"
+    description: "通过 setAttribute 将用户输入设置为元素属性值，可能注入事件处理器或危险属性"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '\.setAttribute\s*\('
+        - regex: 'setAttributeNode'
+    context: "dom-output"
+    fix: "避免使用 setAttribute 设置事件属性（onclick/onerror/onload）；使用 setAttributeNS 或白名单校验"
+
+  - id: "FE-OUT-012"
+    name: "元素 URL 属性赋值（src/href/action）"
+    severity: "high"
+    description: "将用户输入直接赋值给元素的 src/href/action 属性，可能导致 javascript: 协议注入"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '\.src\s*='
+        - regex: '\.href\s*='
+        - regex: '\.action\s*='
+    context: "dom-output"
+    fix: "赋值前校验 URL 协议（仅允许 http/https），或使用 URL 构造函数进行协议校验"
+
+  - id: "FE-OUT-013"
+    name: "location 导航注入"
+    severity: "high"
+    description: "将用户输入赋值给 location.href 或传给 location.assign/replace，可能导致脚本执行"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'location\.href\s*='
+        - regex: 'location\.assign\s*\('
+        - regex: 'location\.replace\s*\('
+    context: "url-output"
+    fix: "使用 encodeURIComponent 对输入进行编码，赋值前使用 URL 构造函数校验"
+
+  - id: "FE-OUT-014"
+    name: "window.open 用户输入"
+    severity: "medium"
+    description: "将用户输入传入 window.open() 打开新窗口/弹窗"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'window\.open\s*\('
+    context: "url-output"
+    fix: "对传入 window.open 的 URL 进行协议白名单校验"
+
+  - id: "FE-OUT-015"
+    name: "CSS 样式注入"
+    severity: "high"
+    description: "将用户输入直接赋值给 CSS 属性或 cssText，可能导致 CSS injection（数据窃取）"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: '\.style\..*\s*='
+        - regex: '\.cssText\s*='
+        - regex: '\.style\.setProperty\s*\('
+    context: "dom-output"
+    fix: "避免将用户输入直接设置为 CSS 值；使用白名单或 CSS 变量"
+
+  - id: "FE-OUT-016"
+    name: "form.action 动态赋值"
+    severity: "medium"
+    description: "将用户输入赋值给表单的 action 属性，可导致表单提交到恶意地址"
+    language: "javascript"
+    file_patterns: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.vue"]
+    detect:
+      patterns:
+        - regex: 'form\.action\s*='
+        - regex: '\.action\s*=\s*[\"'']'
+    context: "url-output"
+    fix: "赋值前校验 URL 协议和域名白名单"
+

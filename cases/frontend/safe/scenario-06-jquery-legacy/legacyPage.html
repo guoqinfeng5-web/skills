@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>安全 jQuery 页面</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="old-script.js"></script>
+</head>
+<body>
+  <h1>用户留言板</h1>
+
+  <form id="comment-form">
+    <label>昵称：<input type="text" id="username" /></label><br />
+    <label>留言：<textarea id="comment-text"></textarea></label><br />
+    <button type="submit">提交</button>
+  </form>
+
+  <h2>留言列表</h2>
+  <div id="comment-list"><!-- 使用 .text() 安全填充 --></div>
+
+  <h2>URL 参数内容</h2>
+  <div id="url-params-content"><!-- 使用 .text() 安全填充 --></div>
+</body>
+</html>
